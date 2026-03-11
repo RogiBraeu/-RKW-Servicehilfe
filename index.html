@@ -592,29 +592,29 @@ function buildPanel(idx) {
       <div class="card-body">
         <div class="field">
           <label>Datum letzter Besuch</label>
-          <input type="date" value="${s.datum_alt}" oninput="upd(${idx},'datum_alt',this.value)">
+          <input id="${idx}_datum_alt" type="date" value="${s.datum_alt}" oninput="upd(${idx},'datum_alt',this.value)">
         </div>
         <div class="field">
           <label>Datum aktueller Besuch</label>
-          <input type="date" value="${s.datum_neu}" oninput="upd(${idx},'datum_neu',this.value)">
+          <input id="${idx}_datum_neu" type="date" value="${s.datum_neu}" oninput="upd(${idx},'datum_neu',this.value)">
         </div>
       </div>
     </div>
     <div class="card">
       <div class="card-title"><span class="icon">⚙️</span> Dosierpumpe</div>
       <div class="card-body">
-        <div class="field"><label>Übersetzung Positiv</label><input type="number" value="${s.ueb_pos}" oninput="upd(${idx},'ueb_pos',+this.value)"></div>
-        <div class="field"><label>Übersetzung Negativ</label><input type="number" value="${s.ueb_neg}" oninput="upd(${idx},'ueb_neg',+this.value)"></div>
-        <div class="field"><label>Kontakt</label><input type="number" step="0.1" value="${s.kontakt}" oninput="upd(${idx},'kontakt',+this.value)"></div>
-        <div class="field"><label>Dos. ml / 100 Hub</label><input type="number" value="${s.dos_ml_hub}" oninput="upd(${idx},'dos_ml_hub',+this.value)"></div>
+        <div class="field"><label>Übersetzung Positiv</label><input id="${idx}_ueb_pos" type="number" value="${s.ueb_pos}" oninput="upd(${idx},'ueb_pos',+this.value)"></div>
+        <div class="field"><label>Übersetzung Negativ</label><input id="${idx}_ueb_neg" type="number" value="${s.ueb_neg}" oninput="upd(${idx},'ueb_neg',+this.value)"></div>
+        <div class="field"><label>Kontakt</label><input id="${idx}_kontakt" type="number" step="0.1" value="${s.kontakt}" oninput="upd(${idx},'kontakt',+this.value)"></div>
+        <div class="field"><label>Dos. ml / 100 Hub</label><input id="${idx}_dos_ml_hub" type="number" value="${s.dos_ml_hub}" oninput="upd(${idx},'dos_ml_hub',+this.value)"></div>
       </div>
     </div>
     <div class="card">
       <div class="card-title"><span class="icon">🔢</span> Zählerstand & Verbrauch</div>
       <div class="card-body">
-        <div class="field"><label>Zählerstand alt</label><input type="number" value="${s.zaehler_alt}" oninput="upd(${idx},'zaehler_alt',+this.value)"></div>
-        <div class="field"><label>Zählerstand neu</label><input type="number" value="${s.zaehler_neu}" oninput="upd(${idx},'zaehler_neu',+this.value)" placeholder="0 = aus Wasserverbrauch"></div>
-        <div class="field"><label>Produktverbrauch Eintragung (L)</label><input type="number" step="0.1" value="${s.prod_eintrag}" oninput="upd(${idx},'prod_eintrag',+this.value)"></div>
+        <div class="field"><label>Zählerstand alt</label><input id="${idx}_zaehler_alt" type="number" value="${s.zaehler_alt}" oninput="upd(${idx},'zaehler_alt',+this.value)"></div>
+        <div class="field"><label>Zählerstand neu</label><input id="${idx}_zaehler_neu" type="number" value="${s.zaehler_neu}" oninput="upd(${idx},'zaehler_neu',+this.value)" placeholder="0 = aus Wasserverbrauch"></div>
+        <div class="field"><label>Produktverbrauch Eintragung (L)</label><input id="${idx}_prod_eintrag" type="number" step="0.1" value="${s.prod_eintrag}" oninput="upd(${idx},'prod_eintrag',+this.value)"></div>
       </div>
     </div>
   </div>
@@ -624,19 +624,19 @@ function buildPanel(idx) {
     <div class="card">
       <div class="card-title"><span class="icon">🚰</span> Speisewasser / Zusatzwasser</div>
       <div class="card-body">
-        <div class="field"><label>KS 4,3</label><input type="number" step="0.1" value="${s.ks_zw}" oninput="upd(${idx},'ks_zw',+this.value)"></div>
-        <div class="field"><label>LF Zusatzwasser (µS/cm)</label><input type="number" value="${s.lf_zw}" oninput="upd(${idx},'lf_zw',+this.value)"></div>
-        <div class="field"><label>°dH Zusatzwasser</label><input type="number" step="0.1" value="${s.dh_zw}" oninput="upd(${idx},'dh_zw',+this.value)"></div>
-        <div class="field"><label>Cl mg/l Zusatzwasser</label><input type="number" value="${s.cl_zw}" oninput="upd(${idx},'cl_zw',+this.value)"></div>
-        <div class="field"><label>Soll-LF (µS/cm)</label><input type="number" value="${s.soll_lf}" oninput="upd(${idx},'soll_lf',+this.value)"></div>
+        <div class="field"><label>KS 4,3</label><input id="${idx}_ks_zw" type="number" step="0.1" value="${s.ks_zw}" oninput="upd(${idx},'ks_zw',+this.value)"></div>
+        <div class="field"><label>LF Zusatzwasser (µS/cm)</label><input id="${idx}_lf_zw" type="number" value="${s.lf_zw}" oninput="upd(${idx},'lf_zw',+this.value)"></div>
+        <div class="field"><label>°dH Zusatzwasser</label><input id="${idx}_dh_zw" type="number" step="0.1" value="${s.dh_zw}" oninput="upd(${idx},'dh_zw',+this.value)"></div>
+        <div class="field"><label>Cl mg/l Zusatzwasser</label><input id="${idx}_cl_zw" type="number" value="${s.cl_zw}" oninput="upd(${idx},'cl_zw',+this.value)"></div>
+        <div class="field"><label>Soll-LF (µS/cm)</label><input id="${idx}_soll_lf" type="number" value="${s.soll_lf}" oninput="upd(${idx},'soll_lf',+this.value)"></div>
       </div>
     </div>
     <div class="card">
       <div class="card-title"><span class="icon">🔄</span> Umlaufwasser (IST-Werte)</div>
       <div class="card-body">
-        <div class="field"><label>IST LF Umlaufwasser (µS/cm)</label><input type="number" value="${s.lf_uw}" oninput="upd(${idx},'lf_uw',+this.value)"></div>
-        <div class="field"><label>°dH Umlaufwasser</label><input type="number" step="0.1" value="${s.dh_uw}" oninput="upd(${idx},'dh_uw',+this.value)"></div>
-        <div class="field"><label>Cl mg/l Umlaufwasser</label><input type="number" value="${s.cl_uw}" oninput="upd(${idx},'cl_uw',+this.value)"></div>
+        <div class="field"><label>IST LF Umlaufwasser (µS/cm)</label><input id="${idx}_lf_uw" type="number" value="${s.lf_uw}" oninput="upd(${idx},'lf_uw',+this.value)"></div>
+        <div class="field"><label>°dH Umlaufwasser</label><input id="${idx}_dh_uw" type="number" step="0.1" value="${s.dh_uw}" oninput="upd(${idx},'dh_uw',+this.value)"></div>
+        <div class="field"><label>Cl mg/l Umlaufwasser</label><input id="${idx}_cl_uw" type="number" value="${s.cl_uw}" oninput="upd(${idx},'cl_uw',+this.value)"></div>
       </div>
     </div>
   </div>
@@ -762,12 +762,12 @@ function buildPanel(idx) {
     <div class="card">
       <div class="card-title"><span class="icon">🦠</span> Biozid – Eingabe</div>
       <div class="card-body">
-        <div class="field"><label>Datum letztes BTB</label><input type="date" value="${s.datum_btb}" oninput="upd(${idx},'datum_btb',this.value)"></div>
-        <div class="field"><label>Systemvolumen (m³)</label><input type="number" step="0.1" value="${s.sys_vol}" oninput="upd(${idx},'sys_vol',+this.value)"></div>
-        <div class="field"><label>Dosiermenge pro Min (ml)</label><input type="number" value="${s.dos_min_ml}" oninput="upd(${idx},'dos_min_ml',+this.value)"></div>
-        <div class="field"><label>Dosierung Minuten</label><input type="number" value="${s.dos_dauer}" oninput="upd(${idx},'dos_dauer',+this.value)"></div>
-        <div class="field"><label>Dosierungen pro Woche</label><input type="number" value="${s.dos_freq}" oninput="upd(${idx},'dos_freq',+this.value)"></div>
-        <div class="field"><label>Soll ml/m³ (100–400, normal ~300)</label><input type="number" value="${s.dos_soll_ml}" oninput="upd(${idx},'dos_soll_ml',+this.value)"></div>
+        <div class="field"><label>Datum letztes BTB</label><input id="${idx}_datum_btb" type="date" value="${s.datum_btb}" oninput="upd(${idx},'datum_btb',this.value)"></div>
+        <div class="field"><label>Systemvolumen (m³)</label><input id="${idx}_sys_vol" type="number" step="0.1" value="${s.sys_vol}" oninput="upd(${idx},'sys_vol',+this.value)"></div>
+        <div class="field"><label>Dosiermenge pro Min (ml)</label><input id="${idx}_dos_min_ml" type="number" value="${s.dos_min_ml}" oninput="upd(${idx},'dos_min_ml',+this.value)"></div>
+        <div class="field"><label>Dosierung Minuten</label><input id="${idx}_dos_dauer" type="number" value="${s.dos_dauer}" oninput="upd(${idx},'dos_dauer',+this.value)"></div>
+        <div class="field"><label>Dosierungen pro Woche</label><input id="${idx}_dos_freq" type="number" value="${s.dos_freq}" oninput="upd(${idx},'dos_freq',+this.value)"></div>
+        <div class="field"><label>Soll ml/m³ (100–400, normal ~300)</label><input id="${idx}_dos_soll_ml" type="number" value="${s.dos_soll_ml}" oninput="upd(${idx},'dos_soll_ml',+this.value)"></div>
       </div>
     </div>
     <div class="card">
@@ -866,7 +866,25 @@ function switchRKW(i) {
 
 function upd(idx, key, val) {
   state[idx][key] = val;
+
+  // Aktives Element merken bevor render() den DOM neu aufbaut
+  const active = document.activeElement;
+  const activeId = active ? active.id : null;
+  const selStart = (active && active.setSelectionRange) ? active.selectionStart : null;
+  const selEnd   = (active && active.setSelectionRange) ? active.selectionEnd   : null;
+
   render();
+
+  // Fokus & Cursor-Position wiederherstellen
+  if (activeId) {
+    const el = document.getElementById(activeId);
+    if (el) {
+      el.focus();
+      if (selStart !== null) {
+        try { el.setSelectionRange(selStart, selEnd); } catch(e) {}
+      }
+    }
+  }
 }
 
 // ── VERLAUF ───────────────────────────────────────────────────────────────
