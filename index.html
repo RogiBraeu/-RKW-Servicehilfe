@@ -412,7 +412,7 @@ let activeRKW = 0;
 // Default-Werte aus Excel
 const defaults = {
   datum_alt: '2025-04-24',
-  datum_neu: new Date().toISOString().slice(0,10),
+  datum_neu: todayStr(),
   ueb_pos: 1,
   ueb_neg: 2,
   kontakt: 2.5,
@@ -428,7 +428,7 @@ const defaults = {
   soll_lf: 1200,
   dh_uw: 32.8,
   cl_uw: 220,
-  datum_btb: '2025-04-24',
+  datum_btb: '',
   sys_vol: 100,
   dos_min_ml: 60,
   dos_dauer: 40,
@@ -437,9 +437,47 @@ const defaults = {
 };
 
 // State pro RKW
+
+// Heutiges Datum im Format TT.MM.JJJJ
+function todayStr() {
+  const d = new Date();
+  return String(d.getDate()).padStart(2,'0') + '.' + String(d.getMonth()+1).padStart(2,'0') + '.' + d.getFullYear();
+}
+
 const state = Array.from({length: RKW_COUNT}, () => ({...defaults}));
 
 // ── BERECHNUNGEN ──────────────────────────────────────────────────────────
+
+// Datum parsen - versteht viele Formate
+function parseDate(str) {
+  if (!str) return NaN;
+  str = str.trim();
+  if (str.includes('.')) {
+    // TT.MM.JJJJ oder T.M.JJ oder T.M.JJJJ etc.
+    const parts = str.split('.');
+    if (parts.length < 3) return NaN;
+    let [d, m, y] = parts;
+    d = +d; m = +m;
+    y = +y;
+    if (y < 100) y += 2000; // 26 → 2026
+    if (!d || !m || !y) return NaN;
+    return new Date(y, m - 1, d);
+  }
+  if (str.includes('-')) {
+    // YYYY-MM-DD
+    return new Date(str);
+  }
+  return NaN;
+}
+
+// Datum formatieren für Anzeige
+function fmtDate(date) {
+  if (!date || isNaN(date)) return '';
+  return String(date.getDate()).padStart(2,'0') + '.' +
+         String(date.getMonth()+1).padStart(2,'0') + '.' +
+         date.getFullYear();
+}
+
 function calc(s) {
   const r = {};
 
@@ -514,8 +552,8 @@ function calc(s) {
   r.bio_dos_soll_pro_woche  = r.bio_dos_soll_pro_dos_l * s.dos_freq;
 
   // Seit letztem BTB
-  const d1 = new Date(s.datum_btb);
-  const d2 = new Date(s.datum_neu);
+  const d1 = parseDate(s.datum_btb);
+  const d2 = parseDate(s.datum_neu);
   r.tage_seit_btb = isNaN(d1) || isNaN(d2) ? 0 : Math.max(0, Math.round((d2-d1)/86400000));
   r.bio_seit_btb_ist  = (r.tage_seit_btb / 7) * r.bio_dos_pro_woche;
   r.bio_seit_btb_soll = (r.tage_seit_btb / 7) * r.bio_dos_soll_pro_woche;
@@ -592,29 +630,29 @@ function buildPanel(idx) {
       <div class="card-body">
         <div class="field">
           <label>Datum letzter Besuch</label>
-          <input id="${idx}_datum_alt" type="date" value="${s.datum_alt}" oninput="upd(${idx},'datum_alt',this.value)">
+          <input id="${idx}_datum_alt" type="text" placeholder="TT.MM.JJJJ" value="${s.datum_alt}" onchange="upd(${idx},'datum_alt',this.value)">
         </div>
         <div class="field">
           <label>Datum aktueller Besuch</label>
-          <input id="${idx}_datum_neu" type="date" value="${s.datum_neu}" oninput="upd(${idx},'datum_neu',this.value)">
+          <input id="${idx}_datum_neu" type="text" placeholder="TT.MM.JJJJ" value="${s.datum_neu}" onchange="upd(${idx},'datum_neu',this.value)">
         </div>
       </div>
     </div>
     <div class="card">
       <div class="card-title"><span class="icon">⚙️</span> Dosierpumpe</div>
       <div class="card-body">
-        <div class="field"><label>Übersetzung Positiv</label><input id="${idx}_ueb_pos" type="number" value="${s.ueb_pos}" oninput="upd(${idx},'ueb_pos',+this.value)"></div>
-        <div class="field"><label>Übersetzung Negativ</label><input id="${idx}_ueb_neg" type="number" value="${s.ueb_neg}" oninput="upd(${idx},'ueb_neg',+this.value)"></div>
-        <div class="field"><label>Kontakt</label><input id="${idx}_kontakt" type="number" step="0.1" value="${s.kontakt}" oninput="upd(${idx},'kontakt',+this.value)"></div>
-        <div class="field"><label>Dos. ml / 100 Hub</label><input id="${idx}_dos_ml_hub" type="number" value="${s.dos_ml_hub}" oninput="upd(${idx},'dos_ml_hub',+this.value)"></div>
+        <div class="field"><label>Übersetzung Positiv</label><input id="${idx}_ueb_pos" type="number" value="${s.ueb_pos}" onchange="upd(${idx},'ueb_pos',+this.value)"></div>
+        <div class="field"><label>Übersetzung Negativ</label><input id="${idx}_ueb_neg" type="number" value="${s.ueb_neg}" onchange="upd(${idx},'ueb_neg',+this.value)"></div>
+        <div class="field"><label>Kontakt</label><input id="${idx}_kontakt" type="number" step="0.1" value="${s.kontakt}" onchange="upd(${idx},'kontakt',+this.value)"></div>
+        <div class="field"><label>Dos. ml / 100 Hub</label><input id="${idx}_dos_ml_hub" type="number" value="${s.dos_ml_hub}" onchange="upd(${idx},'dos_ml_hub',+this.value)"></div>
       </div>
     </div>
     <div class="card">
       <div class="card-title"><span class="icon">🔢</span> Zählerstand & Verbrauch</div>
       <div class="card-body">
-        <div class="field"><label>Zählerstand alt</label><input id="${idx}_zaehler_alt" type="number" value="${s.zaehler_alt}" oninput="upd(${idx},'zaehler_alt',+this.value)"></div>
-        <div class="field"><label>Zählerstand neu</label><input id="${idx}_zaehler_neu" type="number" value="${s.zaehler_neu}" oninput="upd(${idx},'zaehler_neu',+this.value)" placeholder="0 = aus Wasserverbrauch"></div>
-        <div class="field"><label>Produktverbrauch Eintragung (L)</label><input id="${idx}_prod_eintrag" type="number" step="0.1" value="${s.prod_eintrag}" oninput="upd(${idx},'prod_eintrag',+this.value)"></div>
+        <div class="field"><label>Zählerstand alt</label><input id="${idx}_zaehler_alt" type="number" value="${s.zaehler_alt}" onchange="upd(${idx},'zaehler_alt',+this.value)"></div>
+        <div class="field"><label>Zählerstand neu</label><input id="${idx}_zaehler_neu" type="number" value="${s.zaehler_neu}" onchange="upd(${idx},'zaehler_neu',+this.value)" placeholder="0 = aus Wasserverbrauch"></div>
+        <div class="field"><label>Produktverbrauch Eintragung (L)</label><input id="${idx}_prod_eintrag" type="number" step="0.1" value="${s.prod_eintrag}" onchange="upd(${idx},'prod_eintrag',+this.value)"></div>
       </div>
     </div>
   </div>
@@ -624,19 +662,19 @@ function buildPanel(idx) {
     <div class="card">
       <div class="card-title"><span class="icon">🚰</span> Speisewasser / Zusatzwasser</div>
       <div class="card-body">
-        <div class="field"><label>KS 4,3</label><input id="${idx}_ks_zw" type="number" step="0.1" value="${s.ks_zw}" oninput="upd(${idx},'ks_zw',+this.value)"></div>
-        <div class="field"><label>LF Zusatzwasser (µS/cm)</label><input id="${idx}_lf_zw" type="number" value="${s.lf_zw}" oninput="upd(${idx},'lf_zw',+this.value)"></div>
-        <div class="field"><label>°dH Zusatzwasser</label><input id="${idx}_dh_zw" type="number" step="0.1" value="${s.dh_zw}" oninput="upd(${idx},'dh_zw',+this.value)"></div>
-        <div class="field"><label>Cl mg/l Zusatzwasser</label><input id="${idx}_cl_zw" type="number" value="${s.cl_zw}" oninput="upd(${idx},'cl_zw',+this.value)"></div>
-        <div class="field"><label>Soll-LF (µS/cm)</label><input id="${idx}_soll_lf" type="number" value="${s.soll_lf}" oninput="upd(${idx},'soll_lf',+this.value)"></div>
+        <div class="field"><label>KS 4,3</label><input id="${idx}_ks_zw" type="number" step="0.1" value="${s.ks_zw}" onchange="upd(${idx},'ks_zw',+this.value)"></div>
+        <div class="field"><label>LF Zusatzwasser (µS/cm)</label><input id="${idx}_lf_zw" type="number" value="${s.lf_zw}" onchange="upd(${idx},'lf_zw',+this.value)"></div>
+        <div class="field"><label>°dH Zusatzwasser</label><input id="${idx}_dh_zw" type="number" step="0.1" value="${s.dh_zw}" onchange="upd(${idx},'dh_zw',+this.value)"></div>
+        <div class="field"><label>Cl mg/l Zusatzwasser</label><input id="${idx}_cl_zw" type="number" value="${s.cl_zw}" onchange="upd(${idx},'cl_zw',+this.value)"></div>
+        <div class="field"><label>Soll-LF (µS/cm)</label><input id="${idx}_soll_lf" type="number" value="${s.soll_lf}" onchange="upd(${idx},'soll_lf',+this.value)"></div>
       </div>
     </div>
     <div class="card">
       <div class="card-title"><span class="icon">🔄</span> Umlaufwasser (IST-Werte)</div>
       <div class="card-body">
-        <div class="field"><label>IST LF Umlaufwasser (µS/cm)</label><input id="${idx}_lf_uw" type="number" value="${s.lf_uw}" oninput="upd(${idx},'lf_uw',+this.value)"></div>
-        <div class="field"><label>°dH Umlaufwasser</label><input id="${idx}_dh_uw" type="number" step="0.1" value="${s.dh_uw}" oninput="upd(${idx},'dh_uw',+this.value)"></div>
-        <div class="field"><label>Cl mg/l Umlaufwasser</label><input id="${idx}_cl_uw" type="number" value="${s.cl_uw}" oninput="upd(${idx},'cl_uw',+this.value)"></div>
+        <div class="field"><label>IST LF Umlaufwasser (µS/cm)</label><input id="${idx}_lf_uw" type="number" value="${s.lf_uw}" onchange="upd(${idx},'lf_uw',+this.value)"></div>
+        <div class="field"><label>°dH Umlaufwasser</label><input id="${idx}_dh_uw" type="number" step="0.1" value="${s.dh_uw}" onchange="upd(${idx},'dh_uw',+this.value)"></div>
+        <div class="field"><label>Cl mg/l Umlaufwasser</label><input id="${idx}_cl_uw" type="number" value="${s.cl_uw}" onchange="upd(${idx},'cl_uw',+this.value)"></div>
       </div>
     </div>
   </div>
@@ -762,12 +800,12 @@ function buildPanel(idx) {
     <div class="card">
       <div class="card-title"><span class="icon">🦠</span> Biozid – Eingabe</div>
       <div class="card-body">
-        <div class="field"><label>Datum letztes BTB</label><input id="${idx}_datum_btb" type="date" value="${s.datum_btb}" oninput="upd(${idx},'datum_btb',this.value)"></div>
-        <div class="field"><label>Systemvolumen (m³)</label><input id="${idx}_sys_vol" type="number" step="0.1" value="${s.sys_vol}" oninput="upd(${idx},'sys_vol',+this.value)"></div>
-        <div class="field"><label>Dosiermenge pro Min (ml)</label><input id="${idx}_dos_min_ml" type="number" value="${s.dos_min_ml}" oninput="upd(${idx},'dos_min_ml',+this.value)"></div>
-        <div class="field"><label>Dosierung Minuten</label><input id="${idx}_dos_dauer" type="number" value="${s.dos_dauer}" oninput="upd(${idx},'dos_dauer',+this.value)"></div>
-        <div class="field"><label>Dosierungen pro Woche</label><input id="${idx}_dos_freq" type="number" value="${s.dos_freq}" oninput="upd(${idx},'dos_freq',+this.value)"></div>
-        <div class="field"><label>Soll ml/m³ (100–400, normal ~300)</label><input id="${idx}_dos_soll_ml" type="number" value="${s.dos_soll_ml}" oninput="upd(${idx},'dos_soll_ml',+this.value)"></div>
+        <div class="field"><label>Datum letztes BTB</label><input id="${idx}_datum_btb" type="text" placeholder="TT.MM.JJJJ" value="${s.datum_btb||s.datum_alt}" onfocus="if(!this.value){this.value=state[${idx}].datum_alt; upd(${idx},'datum_btb',this.value);}" onchange="upd(${idx},'datum_btb',this.value)"></div>
+        <div class="field"><label>Systemvolumen (m³)</label><input id="${idx}_sys_vol" type="number" step="0.1" value="${s.sys_vol}" onchange="upd(${idx},'sys_vol',+this.value)"></div>
+        <div class="field"><label>Dosiermenge pro Min (ml)</label><input id="${idx}_dos_min_ml" type="number" value="${s.dos_min_ml}" onchange="upd(${idx},'dos_min_ml',+this.value)"></div>
+        <div class="field"><label>Dosierung Minuten</label><input id="${idx}_dos_dauer" type="number" value="${s.dos_dauer}" onchange="upd(${idx},'dos_dauer',+this.value)"></div>
+        <div class="field"><label>Dosierungen pro Woche</label><input id="${idx}_dos_freq" type="number" value="${s.dos_freq}" onchange="upd(${idx},'dos_freq',+this.value)"></div>
+        <div class="field"><label>Soll ml/m³ (100–400, normal ~300)</label><input id="${idx}_dos_soll_ml" type="number" value="${s.dos_soll_ml}" onchange="upd(${idx},'dos_soll_ml',+this.value)"></div>
       </div>
     </div>
     <div class="card">
@@ -863,32 +901,68 @@ function switchRKW(i) {
   activeRKW = i;
   render();
 }
+// Nur Berechnungsergebnisse aktualisieren - Inputs bleiben unangetastet
+function renderResults(idx) {
+  const s = state[idx];
+  const r = calc(s);
+
+  // Berechnete Felder aktualisieren (nur Text, keine Inputs)
+  const set = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  };
+  const setClass = (id, cls) => {
+    const el = document.getElementById(id);
+    if (el) { el.className = el.className.replace(/result-(ok|warn|err)/g,''); el.classList.add(cls); }
+  };
+
+  set(`res_${idx}_eindick_lf`,   isNaN(r.eindick_lf)   ? '-' : r.eindick_lf.toFixed(2));
+  set(`res_${idx}_eindick_dh`,   isNaN(r.eindick_dh)   ? '-' : r.eindick_dh.toFixed(2));
+  set(`res_${idx}_eindick_cl`,   isNaN(r.eindick_cl)   ? '-' : r.eindick_cl.toFixed(2));
+  set(`res_${idx}_zusatzwasser`, isNaN(r.zusatzwasser)  ? '-' : r.zusatzwasser.toFixed(1));
+  set(`res_${idx}_verdunstung`,  isNaN(r.verdunstung)   ? '-' : r.verdunstung.toFixed(1));
+  set(`res_${idx}_abwasser`,     isNaN(r.abwasser)      ? '-' : r.abwasser.toFixed(1));
+  set(`res_${idx}_prod_ml_ns`,   isNaN(r.prod_ml_ns)    ? '-' : r.prod_ml_ns.toFixed(1));
+  set(`res_${idx}_prod_soll`,    isNaN(r.prod_soll)     ? '-' : r.prod_soll.toFixed(1));
+  set(`res_${idx}_kh_zw`,        isNaN(r.kh_zw)         ? '-' : r.kh_zw.toFixed(1));
+  set(`res_${idx}_kh_uw`,        isNaN(r.kh_uw)         ? '-' : r.kh_uw.toFixed(1));
+  set(`res_${idx}_biozid_dos`,   isNaN(r.biozid_dos)    ? '-' : r.biozid_dos.toFixed(2));
+  set(`res_${idx}_biozid_dauer`, isNaN(r.biozid_dauer)  ? '-' : r.biozid_dauer.toFixed(1));
+  set(`res_${idx}_tage_btb`,     isNaN(r.tage_btb)      ? '-' : r.tage_btb);
+
+  // Warnungen aktualisieren
+  const warnEl = document.getElementById(`warnings_${idx}`);
+  if (warnEl) {
+    warnEl.innerHTML = r.warnings.length === 0
+      ? '<span class="badge badge-ok">✅ Alle Werte OK</span>'
+      : r.warnings.map(w => `<span class="badge badge-${w.sev}">${w.msg}</span>`).join('');
+  }
+}
+
+function renderTabs() {
+  const tabsEl = document.getElementById('tabs');
+  if (!tabsEl) return;
+  tabsEl.innerHTML = Array.from({length: RKW_COUNT}, (_,i) => {
+    const s = state[i];
+    const r = calc(s);
+    const maxSev = r.warnings.some(w=>w.sev==='err') ? 'err'
+                 : r.warnings.some(w=>w.sev==='warn') ? 'warn' : 'ok';
+    return `<div class="tab ${i===activeRKW?'active':''}" onclick="switchRKW(${i})">
+      RKW ${i+1}
+      <span class="status-dot ${maxSev}"></span>
+    </div>`;
+  }).join('') + `<div class="tab ${activeRKW===5?'active':''}" onclick="switchRKW(5)">📋 Verlauf</div>`;
+}
+
 
 function upd(idx, key, val) {
   state[idx][key] = val;
-
-  // Aktives Element merken bevor render() den DOM neu aufbaut
-  const active = document.activeElement;
-  const activeId = active ? active.id : null;
-  const selStart = (active && active.setSelectionRange) ? active.selectionStart : null;
-  const selEnd   = (active && active.setSelectionRange) ? active.selectionEnd   : null;
-
-  render();
-
-  // Fokus & Cursor-Position wiederherstellen
-  if (activeId) {
-    const el = document.getElementById(activeId);
-    if (el) {
-      el.focus();
-      if (selStart !== null) {
-        try {
-          // Cursor ans Ende setzen (nach dem neu getippten Zeichen)
-          const len = el.value ? el.value.length : 0;
-          el.setSelectionRange(len, len);
-        } catch(e) {}
-      }
-    }
+  // Wenn datum_alt gesetzt wird und datum_btb noch leer ist -> übernehmen
+  if (key === 'datum_alt' && !state[idx].datum_btb) {
+    state[idx].datum_btb = val;
   }
+  clearTimeout(upd._timer);
+  upd._timer = setTimeout(render, 0);
 }
 
 // ── VERLAUF ───────────────────────────────────────────────────────────────
