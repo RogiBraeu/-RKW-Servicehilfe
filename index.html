@@ -881,7 +881,11 @@ function upd(idx, key, val) {
     if (el) {
       el.focus();
       if (selStart !== null) {
-        try { el.setSelectionRange(selStart, selEnd); } catch(e) {}
+        try {
+          // Cursor ans Ende setzen (nach dem neu getippten Zeichen)
+          const len = el.value ? el.value.length : 0;
+          el.setSelectionRange(len, len);
+        } catch(e) {}
       }
     }
   }
